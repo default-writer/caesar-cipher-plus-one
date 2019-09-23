@@ -100,6 +100,13 @@ function clear2_() {
   IV2.value = "";
 }
 
+function decrypt_cipher(...args) {
+  return cipher_function(shift_decrypt)(...args);
+}
+function encrypt_cipher(...args) {
+  return cipher_function(shift_encrypt)(...args);
+}
+
 function encrypt_() {
   const random = parseInt(IV1.value, 10);
   const _sha_alphabet = sha_alphabet1.value;
@@ -107,7 +114,7 @@ function encrypt_() {
   const shift = Number(shift1.value);
   const alpha = [...alphabet1.value];
   const text = [...plaintext1.value];
-  let array = array_encrypt(
+  let array = encrypt_cipher(
     random,
     shift,
     alpha,
@@ -121,41 +128,38 @@ function encrypt_() {
   log(JSON.stringify(frequencyDistribution(output1.value)));
 }
 
-function array_encrypt(
-  random,
-  shift,
-  alpha,
-  array,
-  sha_alphabet,
-  sha_plaintext
-) {
-  alphabet = alpha;
-  shuffle_binb(alphabet, sha_alphabet);
-  shuffle_binb(alphabet, sha_plaintext);
-  rnd = new prng(random);
-  for (let i = 0; i < shift; i++) {
-    array = array.map(shift_encrypt);
-  }
-  return array;
-}
-
 function decrypt_() {
-  let array = array_decrypt();
+  const random = parseInt(IV2.value, 10);
+  const _sha_alphabet = sha_alphabet2.value;
+  const _sha_plaintext = sha_plaintext2.value;
+  const shift = Number(shift2.value);
+  const alpha = [...alphabet2.value];
+  const text = [...plaintext2.value];
+  let array = decrypt_cipher(
+    random,
+    shift,
+    alpha,
+    text,
+    _sha_alphabet,
+    _sha_plaintext
+  );
   output2.value = array.join("");
+  clear_();
+  log(JSON.stringify(frequencyDistribution(plaintext2.value)));
+  log(JSON.stringify(frequencyDistribution(output2.value)));
 }
 
-function array_decrypt() {
-  random = parseInt(IV2.value, 10);
-  alphabet = [...alphabet2.value];
-  shuffle_binb(alphabet, sha_alphabet2.value);
-  shuffle_binb(alphabet, sha_plaintext2.value);
-  const shift = Number(shift2.value);
-  let array = [...plaintext2.value];
-  rnd = new prng(random);
-  for (let i = 0; i < shift; i++) {
-    array = array.map(shift_decrypt);
-  }
-  return array;
+function cipher_function(cipher) {
+  return function(random, shift, alpha, array, sha_alphabet, sha_plaintext) {
+    alphabet = alpha;
+    shuffle_binb(alphabet, sha_alphabet);
+    shuffle_binb(alphabet, sha_plaintext);
+    rnd = new prng(random);
+    for (let i = 0; i < shift; i++) {
+      array = array.map(cipher);
+    }
+    return array;
+  };
 }
 
 function placeFileContent(file) {
