@@ -100,13 +100,6 @@ function clear2_() {
   IV2.value = "";
 }
 
-function decrypt_cipher(...args) {
-  return cipher_function(shift_decrypt)(...args);
-}
-function encrypt_cipher(...args) {
-  return cipher_function(shift_encrypt)(...args);
-}
-
 function encrypt_() {
   const random = parseInt(IV1.value, 10);
   const _sha_alphabet = sha_alphabet1.value;
@@ -147,6 +140,14 @@ function decrypt_() {
   clear_();
   log(JSON.stringify(frequencyDistribution(plaintext2.value)));
   log(JSON.stringify(frequencyDistribution(output2.value)));
+}
+
+function decrypt_cipher(...args) {
+  return cipher_function(shift_decrypt)(...args);
+}
+
+function encrypt_cipher(...args) {
+  return cipher_function(shift_encrypt)(...args);
 }
 
 function cipher_function(cipher) {
