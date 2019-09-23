@@ -187,6 +187,10 @@ IV1.value = 1;
 shift1.value = 1;
 IV2.value = "";
 shift2.value = "";
+sha_alphabet1.value = sha1(alphabet);
+sha_plaintext1.value = sha1(plaintext);
+
+encrypt_();
 
 function clear() {
   test_output.innerText = "";
@@ -906,9 +910,3 @@ var saveAs =
       });
 
 _global.saveAs = saveAs.saveAs = saveAs;
-
-// document.addEventListener("DOMContentLoaded", () => {
-sha_alphabet1.value = sha1(alphabet);
-sha_plaintext1.value = sha1(plaintext);
-encrypt_();
-// });
