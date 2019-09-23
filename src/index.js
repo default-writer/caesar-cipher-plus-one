@@ -82,66 +82,6 @@ function sha1(array) {
   return hex_sha1(array.join(""));
 }
 
-function clear_() {
-  output.innerText = "";
-}
-
-function log(value) {
-  output.innerText += value + "\n";
-}
-
-function clear2_() {
-  alphabet2.value = "";
-  plaintext2.value = "";
-  sha_alphabet2.value = "";
-  sha_plaintext2.value = "";
-  output2.value = "";
-  shift2.value = "";
-  IV2.value = "";
-}
-
-function encrypt_() {
-  const random = parseInt(IV1.value, 10);
-  const _sha_alphabet = sha_alphabet1.value;
-  const _sha_plaintext = sha_plaintext1.value;
-  const shift = Number(shift1.value);
-  const alpha = [...alphabet1.value];
-  const text = [...plaintext1.value];
-  let array = encrypt_cipher(
-    random,
-    shift,
-    alpha,
-    text,
-    _sha_alphabet,
-    _sha_plaintext
-  );
-  output1.value = array.join("");
-  clear_();
-  log(JSON.stringify(frequencyDistribution(plaintext1.value)));
-  log(JSON.stringify(frequencyDistribution(output1.value)));
-}
-
-function decrypt_() {
-  const random = parseInt(IV2.value, 10);
-  const _sha_alphabet = sha_alphabet2.value;
-  const _sha_plaintext = sha_plaintext2.value;
-  const shift = Number(shift2.value);
-  const alpha = [...alphabet2.value];
-  const text = [...plaintext2.value];
-  let array = decrypt_cipher(
-    random,
-    shift,
-    alpha,
-    text,
-    _sha_alphabet,
-    _sha_plaintext
-  );
-  output2.value = array.join("");
-  clear_();
-  log(JSON.stringify(frequencyDistribution(plaintext2.value)));
-  log(JSON.stringify(frequencyDistribution(output2.value)));
-}
-
 function decrypt_cipher(...args) {
   return cipher_function(shift_decrypt)(...args);
 }
@@ -161,6 +101,52 @@ function cipher_function(cipher) {
     }
     return array;
   };
+}
+
+function clear_() {
+  output.innerText = "";
+}
+
+function log(value) {
+  output.innerText += value + "\n";
+}
+
+function clear2_() {
+  alphabet2.value = "";
+  plaintext2.value = "";
+  sha_alphabet2.value = "";
+  sha_plaintext2.value = "";
+  output2.value = "";
+  shift2.value = "";
+  IV2.value = "";
+}
+
+function encrypt_() {
+  output1.value = encrypt_cipher(
+    parseInt(IV1.value, 10),
+    Number(shift1.value),
+    [...alphabet1.value],
+    [...plaintext1.value],
+    sha_alphabet1.value,
+    sha_plaintext1.value
+  ).join("");
+  clear_();
+  log(JSON.stringify(frequencyDistribution(plaintext1.value)));
+  log(JSON.stringify(frequencyDistribution(output1.value)));
+}
+
+function decrypt_() {
+  output2.value = decrypt_cipher(
+    parseInt(IV2.value, 10),
+    Number(shift2.value),
+    [...alphabet2.value],
+    [...plaintext2.value],
+    sha_alphabet2.value,
+    sha_plaintext2.value
+  ).join("");
+  clear_();
+  log(JSON.stringify(frequencyDistribution(plaintext2.value)));
+  log(JSON.stringify(frequencyDistribution(output2.value)));
 }
 
 function placeFileContent(file) {
