@@ -1,4 +1,29 @@
-import { click } from "./click";
+// `a.click()` doesn't work for all browsers (#465)
+export function click(node) {
+  try {
+    node.dispatchEvent(new MouseEvent("click"));
+  } catch (e) {
+    var evt = document.createEvent("MouseEvents");
+    evt.initMouseEvent(
+      "click",
+      true,
+      true,
+      window,
+      0,
+      0,
+      0,
+      80,
+      20,
+      false,
+      false,
+      false,
+      false,
+      0,
+      null
+    );
+    node.dispatchEvent(evt);
+  }
+}
 
 // The one and only way of getting global scope in all environments
 // https://stackoverflow.com/q/3277182/1008999
@@ -50,7 +75,14 @@ function corsEnabled(url) {
   return xhr.status >= 200 && xhr.status <= 299;
 }
 
-export var load = function() {};
+export function read(file) {
+  const reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    reader.onload = event => resolve(event.target.result);
+    reader.onerror = error => reject(error);
+    reader.readAsText(file);
+  });
+}
 
 export var saveAs =
   _global.saveAs ||

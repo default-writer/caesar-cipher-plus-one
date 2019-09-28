@@ -81,6 +81,7 @@ function _decrypt(char, j) {
 }
 
 function shift_encrypt(char, shift, array) {
+  if (char === undefined || !alphabet.includes(char)) throw Error("undefined");
   const position = alphabet.indexOf(char);
   let j = Math.floor(rnd.next(maximus));
   let newPosition = (position + 1 + j) % cipher_size;
@@ -88,11 +89,11 @@ function shift_encrypt(char, shift, array) {
     j = Math.floor(rnd.next(maximus));
     newPosition = (position + 1 + j) % cipher_size;
   }
-  if (char === undefined || !alphabet.includes(char)) throw Error("undefined");
   return _encrypt(char, j);
 }
 
 function shift_decrypt(char, shift, array) {
+  if (char === undefined || !alphabet.includes(char)) throw Error("undefined");
   const position = alphabet.indexOf(char);
   let j = Math.floor(rnd.next(maximus));
   let newPosition =
@@ -102,6 +103,5 @@ function shift_decrypt(char, shift, array) {
     newPosition =
       cipher_size - 1 - ((cipher_size - position + j) % cipher_size);
   }
-  if (char === undefined || !alphabet.includes(char)) throw Error("undefined");
   return _decrypt(char, j);
 }

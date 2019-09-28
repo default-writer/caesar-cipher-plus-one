@@ -12,8 +12,7 @@ import {
   default_key
 } from "./cipher";
 import { default_alphabet } from "./common";
-import { saveAs } from "./saveAs";
-import { click } from "./click";
+import { read, saveAs, click } from "./io";
 import { chars } from "./chars";
 
 // Artur Mustafin, (c) 2019, https://codepen.io/hack2root/pen/eYObdXv
@@ -110,7 +109,7 @@ function decrypt_() {
 }
 
 function placeFileContent(file) {
-  readFileContent(file)
+  read(file)
     .then(content => {
       clear2_();
       const json = JSON.parse(content);
@@ -127,15 +126,6 @@ function placeFileContent(file) {
       decrypt_();
     })
     .catch(error => console.log(error));
-}
-
-function readFileContent(file) {
-  const reader = new FileReader();
-  return new Promise((resolve, reject) => {
-    reader.onload = event => resolve(event.target.result);
-    reader.onerror = error => reject(error);
-    reader.readAsText(file);
-  });
 }
 
 clear.addEventListener("click", event => {
