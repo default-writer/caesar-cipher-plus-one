@@ -1,25 +1,24 @@
 import "./styles.css";
 
 import {
-  default_alphabet,
-  default_plaintext,
-  seed,
-  cipher_size,
-  maximus
-} from "./common";
-
-import { hex_sha1, hex2binb } from "./sha1";
-import { prng } from "./prng";
+  sha1,
+  encrypt_cipher,
+  decrypt_cipher,
+  random,
+  alphabet,
+  plaintext,
+  set_plaintext,
+  random_key,
+  default_key
+} from "./cipher";
+import { default_alphabet } from "./common";
+import { saveAs } from "./saveAs";
+import { click } from "./click";
+import { chars } from "./chars";
 
 // Artur Mustafin, (c) 2019, https://codepen.io/hack2root/pen/eYObdXv
 // Eli Grey (c) http://purl.eligrey.com/github/FileSaver.js
 // LCG Park & Miller (c) 1988,1993, s=>()=>(2**31-1&(s=Math.imul(48271,s)))/2**31
-
-var alphabet = [...default_alphabet];
-var plaintext = [...default_plaintext];
-
-var rnd = new prng(seed);
-var random = 0;
 
 const alphabet1 = document.getElementById("alphabet1");
 const plaintext1 = document.getElementById("plaintext1");
@@ -62,47 +61,6 @@ sha_plaintext1.value = sha1(plaintext);
 
 encrypt_();
 
-function shuffle_binb(alphabet, str) {
-  let array = hex2binb(str);
-  shuffle(alphabet, array[0]);
-  shuffle(alphabet, array[1]);
-  shuffle(alphabet, array[2]);
-  shuffle(alphabet, array[3]);
-}
-
-function shuffle(array, seed) {
-  let rng = new prng(seed);
-  for (let i = array.length - 1; i > 0; i--) {
-    let j = Math.floor(rng.next(i));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-
-function sha1(array) {
-  return hex_sha1(array.join(""));
-}
-
-function decrypt_cipher(...args) {
-  return cipher_function(shift_decrypt)(...args);
-}
-
-function encrypt_cipher(...args) {
-  return cipher_function(shift_encrypt)(...args);
-}
-
-function cipher_function(cipher) {
-  return function(random, shift, alpha, array, sha_alphabet, sha_plaintext) {
-    alphabet = alpha;
-    shuffle_binb(alphabet, sha_alphabet);
-    shuffle_binb(alphabet, sha_plaintext);
-    rnd = new prng(random);
-    for (let i = 0; i < shift; i++) {
-      array = array.map(cipher);
-    }
-    return array;
-  };
-}
-
 function clear_() {
   output.innerText = "";
 }
@@ -121,6 +79,12 @@ function clear2_() {
   IV2.value = "";
 }
 
+function distribution_() {
+  clear_();
+  log(JSON.stringify(chars(plaintext1.value)));
+  log(JSON.stringify(chars(output1.value)));
+}
+
 function encrypt_() {
   output1.value = encrypt_cipher(
     parseInt(IV1.value, 10),
@@ -130,9 +94,7 @@ function encrypt_() {
     sha_alphabet1.value,
     sha_plaintext1.value
   ).join("");
-  clear_();
-  log(JSON.stringify(frequencyDistribution(plaintext1.value)));
-  log(JSON.stringify(frequencyDistribution(output1.value)));
+  distribution_();
 }
 
 function decrypt_() {
@@ -144,25 +106,24 @@ function decrypt_() {
     sha_alphabet2.value,
     sha_plaintext2.value
   ).join("");
-  clear_();
-  log(JSON.stringify(frequencyDistribution(plaintext2.value)));
-  log(JSON.stringify(frequencyDistribution(output2.value)));
+  distribution_();
 }
 
 function placeFileContent(file) {
   readFileContent(file)
     .then(content => {
       clear2_();
-      plaintext2.value = content.cipher;
-      sha_plaintext2.value = content.sha;
-      alphabet2.value = content.key
-        ? [...content.key].join("")
+      const json = JSON.parse(content);
+      plaintext2.value = json.cipher;
+      sha_plaintext2.value = json.sha;
+      alphabet2.value = json.key
+        ? [...json.key].join("")
         : [...default_alphabet].join("");
-      sha_alphabet2.value = content.key
-        ? sha1([...content.key])
+      sha_alphabet2.value = json.key
+        ? sha1([...json.key])
         : sha1([...default_alphabet]);
-      shift2.value = content.shift ? parseInt(content.shift, 10) : 1;
-      IV2.value = content.iv ? parseInt(content.iv, 10) : 1;
+      shift2.value = json.shift ? parseInt(json.shift, 10) : 1;
+      IV2.value = json.iv ? parseInt(json.iv, 10) : 1;
       decrypt_();
     })
     .catch(error => console.log(error));
@@ -171,7 +132,7 @@ function placeFileContent(file) {
 function readFileContent(file) {
   const reader = new FileReader();
   return new Promise((resolve, reject) => {
-    reader.onload = event => resolve(JSON.parse(event.target.result));
+    reader.onload = event => resolve(event.target.result);
     reader.onerror = error => reject(error);
     reader.readAsText(file);
   });
@@ -265,22 +226,20 @@ alphabet1.addEventListener("input", event => {
 
 plaintext1.addEventListener("input", event => {
   event.preventDefault();
-  plaintext = [...plaintext1.value];
+  set_plaintext(plaintext1.value);
   sha_plaintext1.value = sha1(plaintext);
   encrypt_();
 });
 
 randomize.addEventListener("click", event => {
   event.preventDefault();
-  random = Math.floor(rnd.next(0, maximus));
-  IV1.value = random;
+  IV1.value = random();
   encrypt_();
 });
 
 alphabet_random.addEventListener("click", event => {
   event.preventDefault();
-  random = Math.floor(rnd.next(0, maximus));
-  shuffle(alphabet, random);
+  random_key();
   alphabet1.value = alphabet.join("");
   sha_alphabet1.value = sha1(alphabet);
   encrypt_();
@@ -288,8 +247,7 @@ alphabet_random.addEventListener("click", event => {
 
 alphabet_default.addEventListener("click", event => {
   event.preventDefault();
-  alphabet = [...default_alphabet];
-  plaintext = [...default_plaintext];
+  default_key();
   shift1.value = 1;
   IV1.value = 1;
   shift2.value = "";
@@ -320,274 +278,3 @@ decrypt.addEventListener("click", event => {
   event.preventDefault();
   decrypt_();
 });
-
-function shift_encrypt(char, shift, array) {
-  const position = alphabet.indexOf(char);
-  let j = Math.floor(rnd.next(maximus));
-  let newPosition = (position + 1 + j) % cipher_size;
-  while (newPosition === position) {
-    j = Math.floor(rnd.next(maximus));
-    newPosition = (position + 1 + j) % cipher_size;
-  }
-  if (char === undefined || !alphabet.includes(char)) throw Error("undefined");
-  return _encrypt(char, j);
-}
-
-function shift_decrypt(char, shift, array) {
-  const position = alphabet.indexOf(char);
-  let j = Math.floor(rnd.next(maximus));
-  let newPosition =
-    cipher_size - 1 - ((cipher_size - position + j) % cipher_size);
-  while (newPosition === position) {
-    j = Math.floor(rnd.next(maximus));
-    newPosition =
-      cipher_size - 1 - ((cipher_size - position + j) % cipher_size);
-  }
-  if (char === undefined || !alphabet.includes(char)) throw Error("undefined");
-  return _decrypt(char, j);
-}
-
-function _encrypt(char, j) {
-  return alphabet[(alphabet.indexOf(char) + 1 + j) % cipher_size];
-}
-
-function _decrypt(char, j) {
-  return alphabet[
-    cipher_size - 1 - ((cipher_size - alphabet.indexOf(char) + j) % cipher_size)
-  ];
-}
-
-function convertKeysToItems(obj) {
-  return Object.keys(obj).map(function(key) {
-    return [key, obj[key]];
-  });
-}
-
-function sortByNumThenLetter(array) {
-  return array.sort(function(a, b) {
-    var firstLetter = a[0],
-      firstNum = a[1],
-      secondLetter = b[0],
-      secondNum = b[1];
-    if (firstNum < secondNum) {
-      return 1;
-    }
-    if (firstNum > secondNum) {
-      return -1;
-    }
-    if (firstLetter > secondLetter) {
-      return 1;
-    }
-    if (firstLetter < secondLetter) {
-      return -1;
-    }
-    return 0;
-  });
-}
-
-function frequencyDistribution(text) {
-  const freq = letterFrequency(text);
-  const items = convertKeysToItems(freq);
-  const sort_items = sortByNumThenLetter(items);
-  return {
-    chars: sort_items.reduce((acc, curr) => (acc += curr[0]), ""),
-    values: sort_items.map(s => s[1])
-  };
-}
-
-function letterFrequency(text) {
-  var count = {};
-  text.split("").map(s => (count[s] = count[s] ? count[s] + 1 : 1));
-  return Object.keys(count)
-    .sort()
-    .reduce((acc, curr) => ({ ...acc, [curr]: count[curr] }), {});
-}
-
-// The one and only way of getting global scope in all environments
-// https://stackoverflow.com/q/3277182/1008999
-var _global =
-  typeof window === "object" && window.window === window
-    ? window
-    : typeof window.self === "object" && window.self.self === window.self
-    ? window.self
-    : typeof global === "object" && global.global === global
-    ? global
-    : this;
-
-function bom(blob, opts) {
-  if (typeof opts === "undefined") opts = { autoBom: false };
-  else if (typeof opts !== "object") {
-    console.warn("Deprecated: Expected third argument to be a object");
-    opts = { autoBom: !opts };
-  }
-
-  // prepend BOM for UTF-8 XML and text/* types (including HTML)
-  // note: your browser will automatically convert UTF-16 U+FEFF to EF BB BF
-  if (
-    opts.autoBom &&
-    /^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(
-      blob.type
-    )
-  ) {
-    return new Blob([String.fromCharCode(0xfeff), blob], { type: blob.type });
-  }
-  return blob;
-}
-
-function download(url, name, opts) {
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", url);
-  xhr.responseType = "blob";
-  xhr.onload = function() {
-    saveAs(xhr.response, name, opts);
-  };
-  xhr.onerror = function() {
-    console.error("could not download file");
-  };
-  xhr.send();
-}
-
-function corsEnabled(url) {
-  var xhr = new XMLHttpRequest();
-  // use sync to avoid popup blocker
-  xhr.open("HEAD", url, false);
-  try {
-    xhr.send();
-  } catch (e) {}
-  return xhr.status >= 200 && xhr.status <= 299;
-}
-
-// `a.click()` doesn't work for all browsers (#465)
-function click(node) {
-  try {
-    node.dispatchEvent(new MouseEvent("click"));
-  } catch (e) {
-    var evt = document.createEvent("MouseEvents");
-    evt.initMouseEvent(
-      "click",
-      true,
-      true,
-      window,
-      0,
-      0,
-      0,
-      80,
-      20,
-      false,
-      false,
-      false,
-      false,
-      0,
-      null
-    );
-    node.dispatchEvent(evt);
-  }
-}
-
-var saveAs =
-  _global.saveAs ||
-  // probably in some web worker
-  (typeof window !== "object" || window !== _global
-    ? function saveAs() {
-        /* noop */
-      }
-    : // Use download attribute first if possible (#193 Lumia mobile)
-    "download" in HTMLAnchorElement.prototype
-    ? function saveAs(blob, name, opts) {
-        var URL = _global.URL || _global.webkitURL;
-        var a = document.createElement("a");
-        name = name || blob.name || "download";
-
-        a.download = name;
-        a.rel = "noopener"; // tabnabbing
-
-        // TODO: detect chrome extensions & packaged apps
-        // a.target = '_blank'
-
-        if (typeof blob === "string") {
-          // Support regular links
-          a.href = blob;
-          if (a.origin !== window.location.origin) {
-            corsEnabled(a.href)
-              ? download(blob, name, opts)
-              : click(a, (a.target = "_blank"));
-          } else {
-            click(a);
-          }
-        } else {
-          // Support blobs
-          a.href = URL.createObjectURL(blob);
-          setTimeout(function() {
-            URL.revokeObjectURL(a.href);
-          }, 4e4); // 40s
-          setTimeout(function() {
-            click(a);
-          }, 0);
-        }
-      }
-    : // Use msSaveOrOpenBlob as a second approach
-    "msSaveOrOpenBlob" in navigator
-    ? function saveAs(blob, name, opts) {
-        name = name || blob.name || "download";
-
-        if (typeof blob === "string") {
-          if (corsEnabled(blob)) {
-            download(blob, name, opts);
-          } else {
-            var a = document.createElement("a");
-            a.href = blob;
-            a.target = "_blank";
-            setTimeout(function() {
-              click(a);
-            });
-          }
-        } else {
-          navigator.msSaveOrOpenBlob(bom(blob, opts), name);
-        }
-      }
-    : // Fallback to using FileReader and a popup
-      function saveAs(blob, name, opts, popup) {
-        // Open a popup immediately do go around popup blocker
-        // Mostly only available on user interaction and the fileReader is async so...
-        popup = popup || window.open("", "_blank");
-        if (popup) {
-          popup.document.title = popup.document.body.innerText =
-            "downloading...";
-        }
-
-        if (typeof blob === "string") return download(blob, name, opts);
-
-        var force = blob.type === "application/octet-stream";
-        var isSafari =
-          /constructor/i.test(_global.HTMLElement) || _global.safari;
-        var isChromeIOS = /CriOS\/[\d]+/.test(navigator.userAgent);
-
-        if (
-          (isChromeIOS || (force && isSafari)) &&
-          typeof FileReader !== "undefined"
-        ) {
-          // Safari doesn't allow downloading of blob URLs
-          var reader = new FileReader();
-          reader.onloadend = function() {
-            var url = reader.result;
-            url = isChromeIOS
-              ? url
-              : url.replace(/^data:[^;]*;/, "data:attachment/file;");
-            if (popup) popup.location.href = url;
-            else window.location = url;
-            popup = null; // reverse-tabnabbing #460
-          };
-          reader.readAsDataURL(blob);
-        } else {
-          var URL = _global.URL || _global.webkitURL;
-          var url = URL.createObjectURL(blob);
-          if (popup) popup.location = url;
-          else window.location.href = url;
-          popup = null; // reverse-tabnabbing #460
-          setTimeout(function() {
-            URL.revokeObjectURL(url);
-          }, 4e4); // 40s
-        }
-      });
-
-_global.saveAs = saveAs.saveAs = saveAs;
