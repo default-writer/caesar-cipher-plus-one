@@ -1,7 +1,7 @@
-import { hex_sha1, hex2binb } from "./sha1";
-import { prng } from "./prng";
-import { default_alphabet } from "./alphabet";
-import { default_plaintext, seed, min, max } from "./common";
+import { hex_sha1, hex2binb } from "/src/sha1";
+import { prng } from "/src/prng";
+import { default_alphabet } from "/src/alphabet";
+import { default_plaintext, seed, min, max } from "/src/common";
 
 export var rnd = new prng(seed);
 export var alphabet = [...default_alphabet];

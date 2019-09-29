@@ -11,9 +11,9 @@ import {
   default_key,
   set_alphabet
 } from "./cipher";
-import { click, saveAs } from "./io";
-import { default_alphabet } from "./alphabet";
-import { update_chart } from "./charts";
+import { click, saveAs } from "/src/io";
+import { default_alphabet } from "/src/alphabet";
+import { update_chart } from "/src/charts";
 
 const alphabet1 = document.getElementById("alphabet1");
 const plaintext1 = document.getElementById("plaintext1");

@@ -1,4 +1,4 @@
-import { frequency, convert } from "./alphabet";
+import { frequency, convert } from "/src/alphabet";
 
 function convert_colors(data) {
   const result = [];
