@@ -32,7 +32,7 @@ export function encrypt_cipher(...chars) {
 }
 
 export function random_key() {
-  shuffle(alphabet, Math.floor(rnd.next(min, max)));
+  shuffle(alphabet, random());
 }
 
 export function default_key() {
@@ -74,13 +74,13 @@ function shuffle_binb(alphabet, str) {
 }
 
 function next_position(char) {
-  const j = Math.floor(rnd.next(min, max));
+  const j = random();
   const position = alphabet.indexOf(char);
   return (position + 1 + j) % size();
 }
 
 function previous_position(char) {
-  const j = Math.floor(rnd.next(min, max));
+  const j = random();
   const position = alphabet.indexOf(char);
   return size() - 1 - ((size() - position + j) % size());
 }
