@@ -73,42 +73,30 @@ function shuffle_binb(alphabet, str) {
   shuffle(alphabet, array[3]);
 }
 
-function next_position(position, j) {
+function next_position(char) {
+  const j = Math.floor(rnd.next(max));
+  const position = alphabet.indexOf(char);
   return (position + 1 + j) % size();
 }
 
-function previous_position(position, j) {
+function previous_position(char) {
+  const j = Math.floor(rnd.next(max));
+  const position = alphabet.indexOf(char);
   return size() - 1 - ((size() - position + j) % size());
-}
-
-function _encrypt(char, j) {
-  return alphabet[next_position(alphabet.indexOf(char), j)];
-}
-
-function _decrypt(char, j) {
-  return alphabet[previous_position(alphabet.indexOf(char), j)];
 }
 
 function shift_encrypt(char) {
   if (char === undefined || !alphabet.includes(char)) throw Error("undefined char '" + char + "'");
   const position = alphabet.indexOf(char);
-  let j = Math.floor(rnd.next(max));
-  let newPosition = next_position(position, j);
-  while (newPosition === position) {
-    j = Math.floor(rnd.next(max));
-    newPosition = next_position(position, j);
-  }
-  return _encrypt(char, j);
+  let newPosition = next_position(char);
+  while (newPosition === position) newPosition = next_position(char);
+  return alphabet[newPosition];
 }
 
 function shift_decrypt(char) {
   if (char === undefined || !alphabet.includes(char)) throw Error("undefined char '" + char + "'");
   const position = alphabet.indexOf(char);
-  let j = Math.floor(rnd.next(max));
-  let newPosition = previous_position(position, j);
-  while (newPosition === position) {
-    j = Math.floor(rnd.next(max));
-    newPosition = previous_position(position, j);
-  }
-  return _decrypt(char, j);
+  let newPosition = previous_position(char);
+  while (newPosition === position) newPosition = previous_position(char);
+  return alphabet[newPosition];
 }
