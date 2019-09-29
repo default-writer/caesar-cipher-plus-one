@@ -257,12 +257,12 @@ export function ui() {
   });
   alphabet_basic.addEventListener("click", event => {
     event.preventDefault();
+    set_alphabet("QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890 .\n");
     set_plaintext("This is a text.");
-    set_alphabet("QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890 ./n");
-    plaintext1.value = plaintext.join("");
-    sha_plaintext1.value = sha1(plaintext);
     alphabet1.value = alphabet.join("");
     sha_alphabet1.value = sha1(alphabet);
+    plaintext1.value = plaintext.join("");
+    sha_plaintext1.value = sha1(plaintext);
     encrypt_();
   });
   alphabet_random.addEventListener("click", event => {
