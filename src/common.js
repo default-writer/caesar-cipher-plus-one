@@ -9,5 +9,6 @@ Also, minor amounts of: water, nitrogen oxide, neon, hydrogen-deuterium-oxygen, 
 
 const seed = 1238473661;
 const max = 2147483647;
+const min = 0;
 
-export { seed, max, default_plaintext };
+export { seed, min, max, default_plaintext };

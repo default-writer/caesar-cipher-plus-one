@@ -1,7 +1,7 @@
 import { hex_sha1, hex2binb } from "./sha1";
 import { prng } from "./prng";
 import { default_alphabet } from "./alphabet";
-import { default_plaintext, seed, max } from "./common";
+import { default_plaintext, seed, min, max } from "./common";
 
 export var rnd = new prng(seed);
 export var alphabet = [...default_alphabet];
@@ -74,13 +74,13 @@ function shuffle_binb(alphabet, str) {
 }
 
 function next_position(char) {
-  const j = Math.floor(rnd.next(max));
+  const j = Math.floor(rnd.next(min, max));
   const position = alphabet.indexOf(char);
   return (position + 1 + j) % size();
 }
 
 function previous_position(char) {
-  const j = Math.floor(rnd.next(max));
+  const j = Math.floor(rnd.next(min, max));
   const position = alphabet.indexOf(char);
   return size() - 1 - ((size() - position + j) % size());
 }
