@@ -1,4 +1,5 @@
 import { Chart } from "chart.js";
+
 import {
   sha1,
   random,
@@ -11,9 +12,9 @@ import {
   default_key,
   set_alphabet
 } from "./cipher";
-import { click, saveAs } from "/src/io";
-import { default_alphabet } from "/src/alphabet";
-import { update_chart } from "/src/charts";
+import { click, saveAs } from "./io";
+import { default_alphabet } from "./alphabet";
+import { update_chart } from "./charts";
 
 const alphabet1 = document.getElementById("alphabet1");
 const plaintext1 = document.getElementById("plaintext1");
@@ -43,6 +44,10 @@ const encrypt = document.getElementById("encrypt");
 const decrypt = document.getElementById("decrypt");
 const ctx1 = document.getElementById("myChart1").getContext("2d");
 const ctx2 = document.getElementById("myChart2").getContext("2d");
+
+sha_alphabet1.readOnly = true;
+sha_plaintext1.readOnly = true;
+
 const chart1 = new Chart(ctx1, {
   type: "doughnut",
   data: [],
@@ -73,17 +78,14 @@ const chart2 = new Chart(ctx2, {
     }
   }
 });
-const update_chart_1 = update_chart(chart1);
-const update_chart_2 = update_chart(chart2);
+
 function update_chart1(array) {
-  return update_chart_1(array);
+  return update_chart(chart1)(array);
 }
 
 function update_chart2(array) {
-  return update_chart_2(array);
+  return update_chart(chart2)(array);
 }
-sha_alphabet1.readOnly = true;
-sha_plaintext1.readOnly = true;
 
 function saveContent() {
   click(upload_json);
