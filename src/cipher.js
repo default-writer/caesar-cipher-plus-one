@@ -16,7 +16,7 @@ export function set_plaintext(text) {
 }
 
 export function random() {
-  return Math.floor(rnd.next(0, max));
+  return Math.floor(rnd.next(min, max));
 }
 
 export function sha1(array) {
@@ -32,7 +32,7 @@ export function encrypt_cipher(...chars) {
 }
 
 export function random_key() {
-  shuffle(alphabet, Math.floor(rnd.next(0, max)));
+  shuffle(alphabet, Math.floor(rnd.next(min, max)));
 }
 
 export function default_key() {
