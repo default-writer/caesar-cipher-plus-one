@@ -7,6 +7,10 @@ export var rnd = new prng(seed);
 export var alphabet = [...default_alphabet];
 export var plaintext = [...default_plaintext];
 
+export function set_alphabet(text) {
+  alphabet = [...text];
+}
+
 export function set_plaintext(text) {
   plaintext = [...text];
 }

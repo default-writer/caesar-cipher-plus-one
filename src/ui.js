@@ -8,7 +8,8 @@ import {
   random_key,
   encrypt_cipher,
   decrypt_cipher,
-  default_key
+  default_key,
+  set_alphabet
 } from "./cipher";
 import { click, saveAs } from "./io";
 import { default_alphabet } from "./alphabet";
@@ -37,6 +38,7 @@ const app2 = document.getElementById("app2");
 const randomize = document.getElementById("randomize");
 const alphabet_random = document.getElementById("alphabet_random");
 const alphabet_default = document.getElementById("alphabet_default");
+const alphabet_basic = document.getElementById("alphabet_basic");
 const encrypt = document.getElementById("encrypt");
 const decrypt = document.getElementById("decrypt");
 const ctx1 = document.getElementById("myChart1").getContext("2d");
@@ -249,16 +251,26 @@ export function ui() {
     IV1.value = random();
     encrypt_();
   });
+  alphabet_default.addEventListener("click", event => {
+    event.preventDefault();
+    default_();
+  });
+  alphabet_basic.addEventListener("click", event => {
+    event.preventDefault();
+    set_plaintext("This is a text.");
+    set_alphabet("QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890 ./n");
+    plaintext1.value = plaintext.join("");
+    sha_plaintext1.value = sha1(plaintext);
+    alphabet1.value = alphabet.join("");
+    sha_alphabet1.value = sha1(alphabet);
+    encrypt_();
+  });
   alphabet_random.addEventListener("click", event => {
     event.preventDefault();
     random_key();
     alphabet1.value = alphabet.join("");
     sha_alphabet1.value = sha1(alphabet);
     encrypt_();
-  });
-  alphabet_default.addEventListener("click", event => {
-    event.preventDefault();
-    default_();
   });
   shift1.addEventListener("change", event => {
     event.preventDefault();
