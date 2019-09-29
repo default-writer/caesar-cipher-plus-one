@@ -1,12 +1,7 @@
 import { hex_sha1, hex2binb } from "./sha1";
 import { prng } from "./prng";
-import {
-  default_alphabet,
-  default_plaintext,
-  cipher_size,
-  seed,
-  maximus
-} from "./common";
+import { default_alphabet } from "./alphabet";
+import { default_plaintext, seed, max } from "./common";
 
 export var rnd = new prng(seed);
 export var alphabet = [...default_alphabet];
@@ -17,28 +12,32 @@ export function set_plaintext(text) {
 }
 
 export function random() {
-  return Math.floor(rnd.next(0, maximus));
+  return Math.floor(rnd.next(0, max));
 }
 
 export function sha1(array) {
   return hex_sha1(array.join(""));
 }
 
-export function decrypt_cipher(...args) {
-  return cipher_function(shift_decrypt)(...args);
+export function decrypt_cipher(...chars) {
+  return cipher_function(shift_decrypt)(...chars);
 }
 
-export function encrypt_cipher(...args) {
-  return cipher_function(shift_encrypt)(...args);
+export function encrypt_cipher(...chars) {
+  return cipher_function(shift_encrypt)(...chars);
 }
 
 export function random_key() {
-  shuffle(alphabet, Math.floor(rnd.next(0, maximus)));
+  shuffle(alphabet, Math.floor(rnd.next(0, max)));
 }
 
 export function default_key() {
   alphabet = [...default_alphabet];
   plaintext = [...default_plaintext];
+}
+
+function size() {
+  return alphabet.length;
 }
 
 function shuffle(array, seed, rng) {
@@ -70,38 +69,42 @@ function shuffle_binb(alphabet, str) {
   shuffle(alphabet, array[3]);
 }
 
+function next_position(position, j) {
+  return (position + 1 + j) % size();
+}
+
+function previous_position(position, j) {
+  return size() - 1 - ((size() - position + j) % size());
+}
+
 function _encrypt(char, j) {
-  return alphabet[(alphabet.indexOf(char) + 1 + j) % cipher_size];
+  return alphabet[next_position(alphabet.indexOf(char), j)];
 }
 
 function _decrypt(char, j) {
-  return alphabet[
-    cipher_size - 1 - ((cipher_size - alphabet.indexOf(char) + j) % cipher_size)
-  ];
+  return alphabet[previous_position(alphabet.indexOf(char), j)];
 }
 
-function shift_encrypt(char, shift, array) {
-  if (char === undefined || !alphabet.includes(char)) throw Error("undefined");
+function shift_encrypt(char) {
+  if (char === undefined || !alphabet.includes(char)) throw Error("undefined char '" + char + "'");
   const position = alphabet.indexOf(char);
-  let j = Math.floor(rnd.next(maximus));
-  let newPosition = (position + 1 + j) % cipher_size;
+  let j = Math.floor(rnd.next(max));
+  let newPosition = next_position(position, j);
   while (newPosition === position) {
-    j = Math.floor(rnd.next(maximus));
-    newPosition = (position + 1 + j) % cipher_size;
+    j = Math.floor(rnd.next(max));
+    newPosition = next_position(position, j);
   }
   return _encrypt(char, j);
 }
 
-function shift_decrypt(char, shift, array) {
-  if (char === undefined || !alphabet.includes(char)) throw Error("undefined");
+function shift_decrypt(char) {
+  if (char === undefined || !alphabet.includes(char)) throw Error("undefined char '" + char + "'");
   const position = alphabet.indexOf(char);
-  let j = Math.floor(rnd.next(maximus));
-  let newPosition =
-    cipher_size - 1 - ((cipher_size - position + j) % cipher_size);
+  let j = Math.floor(rnd.next(max));
+  let newPosition = previous_position(position, j);
   while (newPosition === position) {
-    j = Math.floor(rnd.next(maximus));
-    newPosition =
-      cipher_size - 1 - ((cipher_size - position + j) % cipher_size);
+    j = Math.floor(rnd.next(max));
+    newPosition = previous_position(position, j);
   }
   return _decrypt(char, j);
 }

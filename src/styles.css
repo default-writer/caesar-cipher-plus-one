@@ -15,6 +15,11 @@ textarea {
   background: #ffffff;
 }
 
+canvas {
+  display: block;
+  margin: auto;
+}
+
 h1 {
   font-weight: 200;
   font-size: 16px;

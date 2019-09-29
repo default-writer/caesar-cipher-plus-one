@@ -13,5 +13,7 @@
     "jest": "24.9.0"
   },
   "keywords": [],
-  "dependencies": {}
+  "dependencies": {
+    "chart.js": "2.8.0"
+  }
 }
