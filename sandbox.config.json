@@ -1,5 +1,0 @@
-{
-  "template": "node",
-  "infiniteLoopProtection": true,
-  "view": "browser"
-}
