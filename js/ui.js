@@ -87,11 +87,11 @@ function update_chart2(array) {
   return update_chart(chart2)(array);
 }
 
-function saveContent() {
+function loadContent() {
   click(upload_json);
 }
 
-function loadContent() {
+function saveContent() {
   const blob = new Blob(
     [
       JSON.stringify({
@@ -206,11 +206,11 @@ export function ui() {
   });
   import_json.addEventListener("click", event => {
     event.preventDefault();
-    saveContent();
+    loadContent();
   });
   export_json.addEventListener("click", event => {
     event.preventDefault();
-    loadContent();
+    saveContent();
   });
   export_public_json.addEventListener("click", event => {
     event.preventDefault();
